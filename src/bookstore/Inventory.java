@@ -74,10 +74,16 @@ public class Inventory {
 		return foundBooks;
 	}
 	
-	public void displayInventory(){
+	public ArrayList<BookEntry> getBooks(){
+		return books;
+	}
+	
+	public String displayInventory(){
+		String display="";
 		for(BookEntry b:books){
-			System.out.println(b.getIsbn()+" "+b.getTitle()+" "+b.getAuthor()+" "+b.getEdition());
+			display+=b.getIsbn()+" "+b.getTitle()+" "+b.getAuthor()+" "+b.getEdition()+"\n";
 		}
+		return display;
 	}
 
 	public double getMoneyInRegister() {

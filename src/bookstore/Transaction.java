@@ -11,6 +11,11 @@ public class Transaction {
 		time = new Date();
 	}
 	
+	public Transaction(ArrayList<BookPurchase>books, Date time){
+		this.books=books;
+		this.time=time;
+	}
+	
 	public ArrayList<BookPurchase> getBooks() {
 		return books;
 	}

@@ -18,7 +18,11 @@ public class Controller {
 		inventory = new Inventory();
 		transactions = new ArrayList<Transaction>();
 		orderRequests = new ArrayList<OrderRequest>();
-		inventory.addBook(4, "Gone with the Wind", "Margaret Mitchell", 1, 5, 24, 0, 0);
+		inventory.addBook(1, "Gone with the Wind", "Margaret Mitchell", 1, 5, 24, 0, 0);
+		inventory.addBook(2, "Romeo and Juliet", "William Shakespeare", 2, 10, 20, 5, 10);
+		inventory.addBook(3, "Harry Potter", "JK Rowling", 1, 20, 18, 17, 10);
+		inventory.addBook(4, "Catcher in the Rye", "JD Salinger", 4, 15, 15, 5, 2);
+		inventory.addBook(5, "Broadband Telecommunications Management", "Riaz Ezmailzadeh", 1, 7, 45, 0, 0);
 		inventory.displayInventory();
 		shoppingCart=new ShoppingCart();
 		
@@ -65,28 +69,34 @@ public class Controller {
 		findBooks.add(new JLabel("ISBN"));
 		findBooks.add(new JLabel("Quality"));
 		findBooks.add(new JLabel(""));
-		//findBooks.add(new JLabel("Used Price"));
-		//findBooks.add(new JLabel("New Price"));
 		for(BookEntry b:inventory.getBooks()){
 			findBooks.add(new JLabel(b.getTitle()));
 			findBooks.add(new JLabel(b.getAuthor()));
 			findBooks.add(new JLabel(""+b.getEdition()));
 			findBooks.add(new JLabel(""+b.getIsbn()));
-			String[] newUsedStrings = {"New: $"+b.getNewPrice(),"Used: $"+b.getUsedPrice()};
+			String[] newUsedStrings = new String[2];
+			if(b.getNewQuantity()>0)
+				newUsedStrings[0]="New: $"+b.getNewPrice();
+			else
+				newUsedStrings[0]="New: Out of Stock";
+			if(b.getUsedQuantity()>0)
+				newUsedStrings[1]="Used: $"+b.getUsedPrice();
+			else
+				newUsedStrings[1]="Used: Out of Stock";
 			JComboBox<String> newUsed = new JComboBox<String>(newUsedStrings);
 			findBooks.add(newUsed);
 			JButton addToCart = new JButton("Add to cart");
 			addToCart.putClientProperty("book", b);
+			addToCart.putClientProperty("newUsed",newUsed);
 			addToCart.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent event){
-					shoppingCart.addBook((BookEntry)((JButton)event.getSource()).getClientProperty("book"), 1, false);
-					System.out.println(shoppingCart.getBooks());
-					
+					if(((String)((JComboBox<String>)((JButton)event.getSource()).getClientProperty("newUsed")).getSelectedItem()).charAt(0)=='U'&&((String)((JComboBox<String>)((JButton)event.getSource()).getClientProperty("newUsed")).getSelectedItem()).indexOf("Out of Stock")==-1)
+						shoppingCart.addBook((BookEntry)((JButton)event.getSource()).getClientProperty("book"), 1, true);
+					else if(((String)((JComboBox<String>)((JButton)event.getSource()).getClientProperty("newUsed")).getSelectedItem()).charAt(0)=='N'&&((String)((JComboBox<String>)((JButton)event.getSource()).getClientProperty("newUsed")).getSelectedItem()).indexOf("Out of Stock")==-1)
+						shoppingCart.addBook((BookEntry)((JButton)event.getSource()).getClientProperty("book"), 1, false);
 				}
 			});
 			findBooks.add(addToCart);
-			//findBooks.add(new JLabel(""+b.getUsedPrice()));
-			//findBooks.add(new JLabel(""+b.getNewPrice()));
 		}
 		
 		checkout.add(currentBooks);

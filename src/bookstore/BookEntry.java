@@ -13,7 +13,7 @@ public class BookEntry {
 	private double newDiscount;
 	private int numberRequested;
 	
-	public BookEntry(int isbn, String title, String author, int edition, int usedQuantity, double usedPrice, int newQuantity, double newPrice){
+	public BookEntry(int isbn, String title, String author, int edition, int newQuantity, double newPrice, int usedQuantity, double usedPrice){
 		this.isbn=isbn;
 		this.title=title;
 		this.author=author;

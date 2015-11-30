@@ -86,12 +86,13 @@ public class Controller {
 		findBooks.add(findBooksTitle);
 		
 		JPanel findBooksHeading= new JPanel();
-		findBooksHeading.setLayout(new GridLayout(1,6));
+		findBooksHeading.setLayout(new GridLayout(1,7));
 		findBooksHeading.add(new JLabel("Title"));
 		findBooksHeading.add(new JLabel("Author"));
 		findBooksHeading.add(new JLabel("Edition"));
 		findBooksHeading.add(new JLabel("ISBN"));
 		findBooksHeading.add(new JLabel("Quality"));
+		findBooksHeading.add(new JLabel("#"));
 		findBooksHeading.add(new JLabel(""));
 		findBooks.add(findBooksHeading);
 		
@@ -102,6 +103,7 @@ public class Controller {
 			findBooksLine.add(new JLabel(b.getAuthor()));
 			findBooksLine.add(new JLabel(""+b.getEdition()));
 			findBooksLine.add(new JLabel(""+b.getIsbn()));
+			
 			String[] newUsedStrings = new String[2];
 			if(b.getNewQuantity()>0)
 				newUsedStrings[0]="New: $"+b.getNewPrice();
@@ -113,15 +115,22 @@ public class Controller {
 				newUsedStrings[1]="Used: Out of Stock";
 			JComboBox<String> newUsed = new JComboBox<String>(newUsedStrings);
 			findBooksLine.add(newUsed);
+			
+			JTextField quantField = new JTextField("1");
+			findBooksLine.add(quantField);
+			
 			JButton addToCart = new JButton("Add to cart");
 			addToCart.putClientProperty("book", b);
 			addToCart.putClientProperty("newUsed",newUsed);
+			addToCart.putClientProperty("quantity",quantField);
 			addToCart.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent event){
+					String quantString = ((JTextField)((JButton)event.getSource()).getClientProperty("quantity")).getText();
+					//check if quantString is valid here
 					if(((String)((JComboBox<String>)((JButton)event.getSource()).getClientProperty("newUsed")).getSelectedItem()).charAt(0)=='U'&&((String)((JComboBox<String>)((JButton)event.getSource()).getClientProperty("newUsed")).getSelectedItem()).indexOf("Out of Stock")==-1)
-						shoppingCart.addBook((BookEntry)((JButton)event.getSource()).getClientProperty("book"), 1, true);
+						shoppingCart.addBook((BookEntry)((JButton)event.getSource()).getClientProperty("book"), Integer.parseInt(quantString), true);
 					else if(((String)((JComboBox<String>)((JButton)event.getSource()).getClientProperty("newUsed")).getSelectedItem()).charAt(0)=='N'&&((String)((JComboBox<String>)((JButton)event.getSource()).getClientProperty("newUsed")).getSelectedItem()).indexOf("Out of Stock")==-1)
-						shoppingCart.addBook((BookEntry)((JButton)event.getSource()).getClientProperty("book"), 1, false);
+						shoppingCart.addBook((BookEntry)((JButton)event.getSource()).getClientProperty("book"), Integer.parseInt(quantString), false);
 				}
 			});
 			findBooksLine.add(addToCart);

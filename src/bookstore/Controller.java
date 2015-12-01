@@ -13,6 +13,7 @@ public class Controller {
 	private ArrayList<OrderRequest> orderRequests;
 	private ShoppingCart shoppingCart;
 	private JFrame frame;
+	private JPanel checkout;
 	
 	public Controller(){
 		inventory = new Inventory();
@@ -22,7 +23,7 @@ public class Controller {
 		inventory.addBook(2, "Romeo and Juliet", "William Shakespeare", 2, 10, 20, 5, 10);
 		inventory.addBook(3, "Harry Potter", "JK Rowling", 1, 20, 18, 17, 10);
 		inventory.addBook(4, "Catcher in the Rye", "JD Salinger", 4, 15, 15, 5, 2);
-		inventory.addBook(5, "Broadband Telecommunications Management", "Riaz Ezmailzadeh", 1, 7, 45, 0, 0);
+		inventory.addBook(5, "Broadband Telecommunications Management", "Riaz Esmailzadeh", 1, 7, 45, 0, 0);
 		inventory.displayInventory();
 		shoppingCart=new ShoppingCart();
 		
@@ -31,7 +32,7 @@ public class Controller {
 		frame.setSize(1300,700);
 		//frame.setResizable(false);
 		
-		JPanel checkout = new JPanel();
+		checkout = new JPanel();
 		checkout.setLayout(new GridLayout(1,2));
 		
 		JPanel currentBooks = new JPanel();
@@ -49,8 +50,7 @@ public class Controller {
 		cartHeading.add(new JLabel("Price"));
 		cartHeading.add(new JLabel(""));
 		currentBooks.add(cartHeading);
-		//findBooks.add(new JLabel("Used Price"));
-		//findBooks.add(new JLabel("New Price"));
+		
 		for(BookPurchase b:shoppingCart.getBooks()){
 			JPanel currentBooksLine = new JPanel();
 			currentBooksLine.setLayout(new GridLayout(1,4));
@@ -86,23 +86,51 @@ public class Controller {
 		findBooks.add(findBooksTitle);
 		
 		JPanel findBooksHeading= new JPanel();
-		findBooksHeading.setLayout(new GridLayout(1,7));
-		findBooksHeading.add(new JLabel("Title"));
-		findBooksHeading.add(new JLabel("Author"));
-		findBooksHeading.add(new JLabel("Edition"));
-		findBooksHeading.add(new JLabel("ISBN"));
-		findBooksHeading.add(new JLabel("Quality"));
-		findBooksHeading.add(new JLabel("#"));
-		findBooksHeading.add(new JLabel(""));
+		findBooksHeading.setLayout(new GridLayout(1,2));
+		
+		JPanel findBooksHeadingLeft = new JPanel();
+		findBooksHeadingLeft.setLayout(new GridLayout(1,2));
+		findBooksHeadingLeft.add(new JLabel("Title"));
+		findBooksHeadingLeft.add(new JLabel("Author"));
+		findBooksHeading.add(findBooksHeadingLeft);
+		
+		JPanel findBooksHeadingRight = new JPanel();
+		findBooksHeadingRight.setLayout(new GridLayout(1,3));
+		
+		JPanel findBooksHeadingRightLeft = new JPanel();
+		findBooksHeadingRightLeft.setLayout(new GridLayout(1,2));
+		findBooksHeadingRightLeft.add(new JLabel("Edition"));
+		findBooksHeadingRightLeft.add(new JLabel("ISBN"));
+		findBooksHeadingRight.add(findBooksHeadingRightLeft);
+		
+		findBooksHeadingRight.add(new JLabel("Quality"));
+		
+		JPanel findBooksHeadingRightRight = new JPanel();
+		findBooksHeadingRightRight.setLayout(new GridLayout(1,2));
+		findBooksHeadingRightRight.add(new JLabel("#"));
+		findBooksHeadingRightRight.add(new JLabel("Add"));
+		findBooksHeadingRight.add(findBooksHeadingRightRight);
+		findBooksHeading.add(findBooksHeadingRight);
 		findBooks.add(findBooksHeading);
 		
 		for(BookEntry b:inventory.getBooks()){
 			JPanel findBooksLine = new JPanel();
-			findBooksLine.setLayout(new GridLayout(1,6));
-			findBooksLine.add(new JLabel(b.getTitle()));
-			findBooksLine.add(new JLabel(b.getAuthor()));
-			findBooksLine.add(new JLabel(""+b.getEdition()));
-			findBooksLine.add(new JLabel(""+b.getIsbn()));
+			findBooksLine.setLayout(new GridLayout(1,2));
+			
+			JPanel leftSide = new JPanel();
+			leftSide.setLayout(new GridLayout(1,2));
+			leftSide.add(new JLabel(b.getTitle()));
+			leftSide.add(new JLabel(b.getAuthor()));
+			findBooksLine.add(leftSide);
+			
+			JPanel rightSide = new JPanel();
+			rightSide.setLayout(new GridLayout(1,3));
+			
+			JPanel rightLeft = new JPanel();
+			rightLeft.setLayout(new GridLayout(1,2));
+			rightLeft.add(new JLabel(""+b.getEdition()));
+			rightLeft.add(new JLabel(""+b.getIsbn()));
+			rightSide.add(rightLeft);
 			
 			String[] newUsedStrings = new String[2];
 			if(b.getNewQuantity()>0)
@@ -114,12 +142,15 @@ public class Controller {
 			else
 				newUsedStrings[1]="Used: Out of Stock";
 			JComboBox<String> newUsed = new JComboBox<String>(newUsedStrings);
-			findBooksLine.add(newUsed);
+			rightSide.add(newUsed);
+			
+			JPanel rightRight = new JPanel();
+			rightRight.setLayout(new GridLayout(1,2));
 			
 			JTextField quantField = new JTextField("1");
-			findBooksLine.add(quantField);
+			rightRight.add(quantField);
 			
-			JButton addToCart = new JButton("Add to cart");
+			JButton addToCart = new JButton("+");
 			addToCart.putClientProperty("book", b);
 			addToCart.putClientProperty("newUsed",newUsed);
 			addToCart.putClientProperty("quantity",quantField);
@@ -133,7 +164,9 @@ public class Controller {
 						shoppingCart.addBook((BookEntry)((JButton)event.getSource()).getClientProperty("book"), Integer.parseInt(quantString), false);
 				}
 			});
-			findBooksLine.add(addToCart);
+			rightRight.add(addToCart);
+			rightSide.add(rightRight);
+			findBooksLine.add(rightSide);
 			findBooks.add(findBooksLine);
 		}
 		

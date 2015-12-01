@@ -3,6 +3,7 @@ package bookstore;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import javax.swing.*;
@@ -57,11 +58,11 @@ public class Controller {
 			currentBooksLine.add(new JLabel(b.getTitle()));
 			if(b.isUsed()){
 				currentBooksLine.add(new JLabel("Used"));
-				currentBooksLine.add(new JLabel("$"+b.getUsedPrice()));
+				currentBooksLine.add(new JLabel("$"+String.format("%.2f",b.getUsedPrice())));
 			}
 			else{
 				currentBooksLine.add(new JLabel("New"));
-				currentBooksLine.add(new JLabel("$"+b.getNewPrice()));
+				currentBooksLine.add(new JLabel("$"+String.format("%.2f",b.getNewPrice())));
 			}
 			JButton addToCart = new JButton("Remove from cart");
 			addToCart.putClientProperty("book", b);
@@ -131,11 +132,11 @@ public class Controller {
 			
 			String[] newUsedStrings = new String[2];
 			if(b.getNewQuantity()>0)
-				newUsedStrings[0]="New: $"+b.getNewPrice();
+				newUsedStrings[0]="New: $"+String.format("%.2f", b.getNewPrice());
 			else
 				newUsedStrings[0]="New: Out of Stock";
 			if(b.getUsedQuantity()>0)
-				newUsedStrings[1]="Used: $"+b.getUsedPrice();
+				newUsedStrings[1]="Used: $"+String.format("%.2f",b.getUsedPrice());
 			else
 				newUsedStrings[1]="Used: Out of Stock";
 			JComboBox<String> newUsed = new JComboBox<String>(newUsedStrings);

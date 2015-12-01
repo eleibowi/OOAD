@@ -6,7 +6,7 @@ public class BookPurchase extends BookEntry{
 	private boolean used;
 	
 	public BookPurchase(BookEntry book, int quantity, boolean used) {
-		super(book.getIsbn(),book.getTitle(),book.getAuthor(),book.getEdition(),book.getUsedQuantity(),book.getUsedPrice(),book.getNewQuantity(),book.getNewPrice());
+		super(book.getIsbn(),book.getTitle(),book.getAuthor(),book.getEdition(),book.getNewQuantity(),book.getNewPrice(),book.getUsedQuantity(),book.getUsedPrice());
 		this.setQuantity(quantity);
 		this.setUsed(used);
 		if(used)

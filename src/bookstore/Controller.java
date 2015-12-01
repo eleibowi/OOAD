@@ -182,8 +182,8 @@ public class Controller {
 			cartHeading.setLayout(new GridLayout(1,5));
 			cartHeading.add(new JLabel("Title"));
 			cartHeading.add(new JLabel("Quality"));
-			cartHeading.add(new JLabel("Price"));
 			cartHeading.add(new JLabel("#"));
+			cartHeading.add(new JLabel("Price"));
 			cartHeading.add(new JLabel(""));
 			currentBooks.add(cartHeading);
 		}
@@ -192,15 +192,12 @@ public class Controller {
 			JPanel currentBooksLine = new JPanel();
 			currentBooksLine.setLayout(new GridLayout(1,5));
 			currentBooksLine.add(new JLabel(b.getTitle()));
-			if(b.isUsed()){
+			if(b.isUsed())
 				currentBooksLine.add(new JLabel("Used"));
-				currentBooksLine.add(new JLabel("$"+String.format("%.2f",b.getUsedPrice())));
-			}
-			else{
+			else
 				currentBooksLine.add(new JLabel("New"));
-				currentBooksLine.add(new JLabel("$"+String.format("%.2f",b.getNewPrice())));
-			}
 			currentBooksLine.add(new JLabel(""+b.getQuantity()));
+			currentBooksLine.add(new JLabel("$"+String.format("%.2f",b.getPrice())));
 			JButton addToCart = new JButton("Remove");
 			addToCart.putClientProperty("book", b);
 			addToCart.addActionListener(new ActionListener(){
@@ -239,30 +236,31 @@ public class Controller {
 		transactionHeading.add(new JLabel("Time"));
 		transactionHeading.add(new JLabel("Book"));
 		transactionHeading.add(new JLabel("Quality"));
-		transactionHeading.add(new JLabel("Price"));
 		transactionHeading.add(new JLabel("#"));
+		transactionHeading.add(new JLabel("Price"));
 		transactionPanel.add(transactionHeading);
 		
 		for(Transaction t: transactions){
 			JPanel transactionRow=new JPanel();
 			transactionRow.setLayout(new GridLayout(1,5));
 			transactionRow.add(new JLabel(t.getTime().toString()));
+			double totalPrice=0;
 			for(BookPurchase b:t.getBooks()){
 				transactionRow.add(new JLabel(b.getTitle()));
-				if(b.isUsed()){
+				if(b.isUsed())
 					transactionRow.add(new JLabel("Used"));
-					transactionRow.add(new JLabel("$"+String.format("%.2f",b.getUsedPrice())));
-				}
-				else{
+				else
 					transactionRow.add(new JLabel("New"));
-					transactionRow.add(new JLabel("$"+String.format("%.2f",b.getNewPrice())));
-				}
 				transactionRow.add(new JLabel(""+b.getQuantity()));
+				transactionRow.add(new JLabel("$"+String.format("%.2f",b.getPrice())));
 				transactionPanel.add(transactionRow);
 				transactionRow=new JPanel();
 				transactionRow.setLayout(new GridLayout(1,5));
 				transactionRow.add(new JLabel(""));
+				totalPrice+=b.getPrice();
 			}
+			transactionPanel.add(new JLabel("TotalPrice: $"+String.format("%.2f",totalPrice)));
+			transactionPanel.add(new JLabel(""));
 		}
 		transactionPanel.revalidate();
 		transactionPanel.repaint();

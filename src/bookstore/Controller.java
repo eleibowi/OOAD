@@ -15,6 +15,8 @@ public class Controller {
 	private ShoppingCart shoppingCart;
 	private JFrame frame;
 	private JPanel checkout;
+	private JPanel shoppingCartPanel;
+	private JPanel inventoryPanel;
 	
 	public Controller(){
 		inventory = new Inventory();
@@ -33,50 +35,28 @@ public class Controller {
 		frame.setSize(1300,700);
 		//frame.setResizable(false);
 		
-		checkout = new JPanel();
+		checkout=new JPanel();
 		checkout.setLayout(new GridLayout(1,2));
+		updateCheckoutPanel();
 		
-		JPanel currentBooks = new JPanel();
-		//currentBooks.setLayout(new GridLayout(shoppingCart.getBooks().size()+1,5));
-		currentBooks.setLayout(new GridLayout(21,1));
+		JPanel returnPurchase = new JPanel();
 		
-		JPanel cartTitle = new JPanel();
-		cartTitle.add(new JLabel("Shopping Cart"));
-		currentBooks.add(cartTitle);
+		JPanel buyFromCustomer = new JPanel();
 		
-		JPanel cartHeading = new JPanel();
-		cartHeading.setLayout(new GridLayout(1,4));
-		cartHeading.add(new JLabel("Title"));
-		cartHeading.add(new JLabel("Used/New"));
-		cartHeading.add(new JLabel("Price"));
-		cartHeading.add(new JLabel(""));
-		currentBooks.add(cartHeading);
+		JPanel manageInventory = new JPanel();
 		
-		for(BookPurchase b:shoppingCart.getBooks()){
-			JPanel currentBooksLine = new JPanel();
-			currentBooksLine.setLayout(new GridLayout(1,4));
-			currentBooksLine.add(new JLabel(b.getTitle()));
-			if(b.isUsed()){
-				currentBooksLine.add(new JLabel("Used"));
-				currentBooksLine.add(new JLabel("$"+String.format("%.2f",b.getUsedPrice())));
-			}
-			else{
-				currentBooksLine.add(new JLabel("New"));
-				currentBooksLine.add(new JLabel("$"+String.format("%.2f",b.getNewPrice())));
-			}
-			JButton addToCart = new JButton("Remove from cart");
-			addToCart.putClientProperty("book", b);
-			addToCart.addActionListener(new ActionListener(){
-				public void actionPerformed(ActionEvent event){
-					shoppingCart.removeBook((BookPurchase)((JButton)event.getSource()).getClientProperty("book"));
-				}
-			});
-			currentBooksLine.add(addToCart);
-			currentBooks.add(currentBooksLine);
-		}
+		JTabbedPane tabbedPane=new JTabbedPane();
+		tabbedPane.addTab("Checkout", checkout);
+		tabbedPane.addTab("Return Purchase", returnPurchase);
+		tabbedPane.addTab("Buy From Customer", buyFromCustomer);
+		tabbedPane.addTab("Manage Inventory", manageInventory);
+		frame.add(tabbedPane);
 		
+		frame.setVisible(true);
+	}
+	
+	public JPanel getInventoryPanel(){
 		JPanel findBooks = new JPanel();
-		//findBooks.setLayout(new GridLayout(inventory.getBooks().size()+1,6));
 		findBooks.setLayout(new GridLayout(21,1));
 		
 		JPanel findBooksTitle = new JPanel();
@@ -160,6 +140,8 @@ public class Controller {
 						shoppingCart.addBook((BookEntry)((JButton)event.getSource()).getClientProperty("book"), Integer.parseInt(quantString), true);
 					else if(((String)((JComboBox<String>)((JButton)event.getSource()).getClientProperty("newUsed")).getSelectedItem()).charAt(0)=='N'&&((String)((JComboBox<String>)((JButton)event.getSource()).getClientProperty("newUsed")).getSelectedItem()).indexOf("Out of Stock")==-1)
 						shoppingCart.addBook((BookEntry)((JButton)event.getSource()).getClientProperty("book"), Integer.parseInt(quantString), false);
+					//shoppingCartPanel=getShoppingCartPanel();
+					updateCheckoutPanel();
 				}
 			});
 			rightRight.add(addToCart);
@@ -167,24 +149,62 @@ public class Controller {
 			findBooksLine.add(rightSide);
 			findBooks.add(findBooksLine);
 		}
+		return findBooks;
+	}
+	
+	public void updateCheckoutPanel(){
+		checkout.removeAll();
+		shoppingCartPanel = getShoppingCartPanel();
+		checkout.add(shoppingCartPanel);
+		inventoryPanel = getInventoryPanel();
+		checkout.add(inventoryPanel);
+		checkout.revalidate();
+		checkout.repaint();
+	}
+	
+	public JPanel getShoppingCartPanel(){
+		JPanel currentBooks = new JPanel();
+		//currentBooks.setLayout(new GridLayout(shoppingCart.getBooks().size()+1,5));
+		currentBooks.setLayout(new GridLayout(21,1));
 		
-		checkout.add(currentBooks);
-		checkout.add(findBooks);
+		JPanel cartTitle = new JPanel();
+		cartTitle.add(new JLabel("Shopping Cart"));
+		currentBooks.add(cartTitle);
 		
-		JPanel returnPurchase = new JPanel();
+		JPanel cartHeading = new JPanel();
+		cartHeading.setLayout(new GridLayout(1,5));
+		cartHeading.add(new JLabel("Title"));
+		cartHeading.add(new JLabel("Quality"));
+		cartHeading.add(new JLabel("Price"));
+		cartHeading.add(new JLabel("#"));
+		cartHeading.add(new JLabel(""));
+		currentBooks.add(cartHeading);
 		
-		JPanel buyFromCustomer = new JPanel();
-		
-		JPanel manageInventory = new JPanel();
-		
-		JTabbedPane tabbedPane=new JTabbedPane();
-		tabbedPane.addTab("Checkout", checkout);
-		tabbedPane.addTab("Return Purchase", returnPurchase);
-		tabbedPane.addTab("Buy From Customer", buyFromCustomer);
-		tabbedPane.addTab("Manage Inventory", manageInventory);
-		frame.add(tabbedPane);
-		
-		frame.setVisible(true);
+		for(BookPurchase b:shoppingCart.getBooks()){
+			JPanel currentBooksLine = new JPanel();
+			currentBooksLine.setLayout(new GridLayout(1,5));
+			currentBooksLine.add(new JLabel(b.getTitle()));
+			if(b.isUsed()){
+				currentBooksLine.add(new JLabel("Used"));
+				currentBooksLine.add(new JLabel("$"+String.format("%.2f",b.getUsedPrice())));
+			}
+			else{
+				currentBooksLine.add(new JLabel("New"));
+				currentBooksLine.add(new JLabel("$"+String.format("%.2f",b.getNewPrice())));
+			}
+			currentBooksLine.add(new JLabel(""+b.getQuantity()));
+			JButton addToCart = new JButton("Remove from cart");
+			addToCart.putClientProperty("book", b);
+			addToCart.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent event){
+					shoppingCart.removeBook((BookPurchase)((JButton)event.getSource()).getClientProperty("book"));
+					updateCheckoutPanel();
+				}
+			});
+			currentBooksLine.add(addToCart);
+			currentBooks.add(currentBooksLine);
+		}
+		return currentBooks;
 	}
 	
 	public void checkOut(){

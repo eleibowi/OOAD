@@ -68,13 +68,10 @@ public class Controller {
 			addToCart.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent event){
 					shoppingCart.removeBook((BookPurchase)((JButton)event.getSource()).getClientProperty("book"));
-					
 				}
 			});
 			currentBooksLine.add(addToCart);
 			currentBooks.add(currentBooksLine);
-			//findBooks.add(new JLabel(""+b.getUsedPrice()));
-			//findBooks.add(new JLabel(""+b.getNewPrice()));
 		}
 		
 		JPanel findBooks = new JPanel();

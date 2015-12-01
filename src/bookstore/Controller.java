@@ -193,7 +193,7 @@ public class Controller {
 				currentBooksLine.add(new JLabel("$"+String.format("%.2f",b.getNewPrice())));
 			}
 			currentBooksLine.add(new JLabel(""+b.getQuantity()));
-			JButton addToCart = new JButton("Remove from cart");
+			JButton addToCart = new JButton("Remove");
 			addToCart.putClientProperty("book", b);
 			addToCart.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent event){
@@ -204,6 +204,21 @@ public class Controller {
 			currentBooksLine.add(addToCart);
 			currentBooks.add(currentBooksLine);
 		}
+		if(shoppingCart.getBooks().size()>0){
+			JButton checkoutButton=new JButton("Check Out");
+			checkoutButton.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent event){
+					transactions.add(new Transaction(shoppingCart.getBooks()));
+					for(BookPurchase b : shoppingCart.getBooks()){
+						inventory.sellBook(b);
+					}
+					shoppingCart.setBooks(new ArrayList<BookPurchase>());
+					updateCheckoutPanel();
+				}
+			});
+			currentBooks.add(checkoutButton);
+		}
+		
 		return currentBooks;
 	}
 	

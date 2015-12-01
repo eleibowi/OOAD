@@ -177,14 +177,16 @@ public class Controller {
 		cartTitle.add(new JLabel("Shopping Cart"));
 		currentBooks.add(cartTitle);
 		
-		JPanel cartHeading = new JPanel();
-		cartHeading.setLayout(new GridLayout(1,5));
-		cartHeading.add(new JLabel("Title"));
-		cartHeading.add(new JLabel("Quality"));
-		cartHeading.add(new JLabel("Price"));
-		cartHeading.add(new JLabel("#"));
-		cartHeading.add(new JLabel(""));
-		currentBooks.add(cartHeading);
+		if(shoppingCart.getBooks().size()>0){
+			JPanel cartHeading = new JPanel();
+			cartHeading.setLayout(new GridLayout(1,5));
+			cartHeading.add(new JLabel("Title"));
+			cartHeading.add(new JLabel("Quality"));
+			cartHeading.add(new JLabel("Price"));
+			cartHeading.add(new JLabel("#"));
+			cartHeading.add(new JLabel(""));
+			currentBooks.add(cartHeading);
+		}
 		
 		for(BookPurchase b:shoppingCart.getBooks()){
 			JPanel currentBooksLine = new JPanel();

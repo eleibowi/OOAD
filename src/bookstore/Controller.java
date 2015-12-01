@@ -17,6 +17,7 @@ public class Controller {
 	private JPanel checkout;
 	private JPanel shoppingCartPanel;
 	private JPanel inventoryPanel;
+	private JPanel transactionPanel;
 	
 	public Controller(){
 		inventory = new Inventory();
@@ -45,11 +46,16 @@ public class Controller {
 		
 		JPanel manageInventory = new JPanel();
 		
+		transactionPanel = new JPanel();
+		transactionPanel.setLayout(new GridLayout(21,1));
+		updateTransactionPanel();
+		
 		JTabbedPane tabbedPane=new JTabbedPane();
 		tabbedPane.addTab("Checkout", checkout);
 		tabbedPane.addTab("Return Purchase", returnPurchase);
 		tabbedPane.addTab("Buy From Customer", buyFromCustomer);
 		tabbedPane.addTab("Manage Inventory", manageInventory);
+		tabbedPane.addTab("Past Transactions", transactionPanel);
 		frame.add(tabbedPane);
 		
 		frame.setVisible(true);
@@ -214,6 +220,7 @@ public class Controller {
 					}
 					shoppingCart.setBooks(new ArrayList<BookPurchase>());
 					updateCheckoutPanel();
+					updateTransactionPanel();
 				}
 			});
 			currentBooks.add(checkoutButton);
@@ -222,13 +229,41 @@ public class Controller {
 		return currentBooks;
 	}
 	
-	public void checkOut(){
-		//ShoppingCart shoppingCart = new ShoppingCart();
-		shoppingCart.setBooks(chooseBooksFromInventory());
-		transactions.add(new Transaction(shoppingCart.getBooks()));
-		for(BookPurchase b : shoppingCart.getBooks()){
-			inventory.sellBook(b);
+	public void updateTransactionPanel(){
+		transactionPanel.removeAll();
+		
+		JPanel transactionHeading = new JPanel();
+		transactionHeading.setLayout(new GridLayout(1,5));
+		transactionHeading.add(new JLabel("Time"));
+		transactionHeading.add(new JLabel("Book"));
+		transactionHeading.add(new JLabel("Quality"));
+		transactionHeading.add(new JLabel("Price"));
+		transactionHeading.add(new JLabel("#"));
+		transactionPanel.add(transactionHeading);
+		
+		for(Transaction t: transactions){
+			JPanel transactionRow=new JPanel();
+			transactionRow.setLayout(new GridLayout(1,5));
+			transactionRow.add(new JLabel(t.getTime().toString()));
+			for(BookPurchase b:t.getBooks()){
+				transactionRow.add(new JLabel(b.getTitle()));
+				if(b.isUsed()){
+					transactionRow.add(new JLabel("Used"));
+					transactionRow.add(new JLabel("$"+String.format("%.2f",b.getUsedPrice())));
+				}
+				else{
+					transactionRow.add(new JLabel("New"));
+					transactionRow.add(new JLabel("$"+String.format("%.2f",b.getNewPrice())));
+				}
+				transactionRow.add(new JLabel(""+b.getQuantity()));
+				transactionPanel.add(transactionRow);
+				transactionRow=new JPanel();
+				transactionRow.setLayout(new GridLayout(1,5));
+				transactionRow.add(new JLabel(""));
+			}
 		}
+		transactionPanel.revalidate();
+		transactionPanel.repaint();
 	}
 	
 	public void requestBooks(){

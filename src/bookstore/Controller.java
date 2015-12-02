@@ -29,6 +29,7 @@ public class Controller {
 		inventory.addBook(3, "Harry Potter", "JK Rowling", 1, 20, 18, 17, 10);
 		inventory.addBook(4, "Catcher in the Rye", "JD Salinger", 4, 15, 15, 5, 2);
 		inventory.addBook(5, "Broadband Telecommunications Management", "Riaz Esmailzadeh", 1, 7, 45, 0, 0);
+		inventory.addBook(6, "Othello", "William Shakespeare", 6, 12, 12, 4, 6);
 		inventoryDisplay = inventory.getBooks();
 		shoppingCart=new ShoppingCart();
 		

@@ -16,8 +16,8 @@ public class Inventory {
 		this.setMoneyInRegister(money);
 	}
 	
-	public void addBook(int isbn, String title, String author, int edition, int usedQuantity, double usedPrice, int newQuantity, double newPrice){
-		books.add(new BookEntry(isbn,title,author,edition,usedQuantity,usedPrice,newQuantity,newPrice));
+	public void addBook(int isbn, String title, String author, int edition, int newQuantity, double newPrice, int usedQuantity, double usedPrice){
+		books.add(new BookEntry(isbn,title,author,edition,newQuantity,newPrice,usedQuantity,usedPrice));
 	}
 	
 	public void removeBook(BookEntry book){

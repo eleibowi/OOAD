@@ -265,12 +265,12 @@ public class Controller {
 		transactionHeading.add(new JLabel("Price"));
 		transactionPanel.add(transactionHeading);
 
-		for(Transaction t: transactions){
+		for(int t=transactions.size()-1;t>=0;t--){
 			JPanel transactionRow=new JPanel();
 			transactionRow.setLayout(new GridLayout(1,5));
-			transactionRow.add(new JLabel(t.getTime().toString()));
+			transactionRow.add(new JLabel(transactions.get(t).getTime().toString()));
 			double totalPrice=0;
-			for(BookPurchase b:t.getBooks()){
+			for(BookPurchase b:transactions.get(t).getBooks()){
 				transactionRow.add(new JLabel(b.getTitle()));
 				if(b.isUsed())
 					transactionRow.add(new JLabel("Used"));

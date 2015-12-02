@@ -1,6 +1,7 @@
 package bookstore;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -81,9 +82,12 @@ public class Controller {
 		findBooksTitle.add(new JLabel("Choose books from inventory"));
 		
 		JPanel searchInventory = new JPanel();
-		searchInventory.setLayout(new GridLayout(1,3));
+		//searchInventory.setLayout(new GridLayout(1,3));
 		searchInventory.add(new JLabel("Showing "+inventoryDisplay.size()+"/"+inventory.getBooks().size()+" books"));
+		
+		//Search for book by title, author, or isbn
 		JTextField searchField = new JTextField();
+		searchField.setPreferredSize(new Dimension(250,25));
 		searchInventory.add(searchField);
 		
 		JButton searchButton = new JButton("Search");
@@ -193,16 +197,6 @@ public class Controller {
 		return findBooks;
 	}
 	
-	public void updateCheckoutPanel(){
-		checkout.removeAll();
-		shoppingCartPanel = getShoppingCartPanel();
-		checkout.add(shoppingCartPanel);
-		inventoryPanel = getInventoryPanel();
-		checkout.add(inventoryPanel);
-		checkout.revalidate();
-		checkout.repaint();
-	}
-	
 	public JPanel getShoppingCartPanel(){
 		JPanel currentBooks = new JPanel();
 		//currentBooks.setLayout(new GridLayout(shoppingCart.getBooks().size()+1,5));
@@ -233,19 +227,23 @@ public class Controller {
 				currentBooksLine.add(new JLabel("New"));
 			currentBooksLine.add(new JLabel(""+b.getQuantity()));
 			currentBooksLine.add(new JLabel("$"+String.format("%.2f",b.getPrice())));
-			JButton addToCart = new JButton("Remove");
-			addToCart.putClientProperty("book", b);
-			addToCart.addActionListener(new ActionListener(){
+			JButton removeButton = new JButton("Remove");
+			removeButton.putClientProperty("book", b);
+			removeButton.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent event){
 					shoppingCart.removeBook((BookPurchase)((JButton)event.getSource()).getClientProperty("book"));
 					updateCheckoutPanel();
 				}
 			});
-			currentBooksLine.add(addToCart);
+			removeButton.setPreferredSize(new Dimension(100,25));
+			JPanel removeButtonPanel = new JPanel();
+			removeButtonPanel.add(removeButton);
+			currentBooksLine.add(removeButtonPanel);
 			currentBooks.add(currentBooksLine);
 		}
 		if(shoppingCart.getBooks().size()>0){
 			JButton checkoutButton=new JButton("Check Out");
+			checkoutButton.setPreferredSize(new Dimension(500,25));
 			checkoutButton.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent event){
 					transactions.add(new Transaction(shoppingCart.getBooks()));
@@ -257,19 +255,29 @@ public class Controller {
 					updateTransactionPanel();
 				}
 			});
-			currentBooks.add(checkoutButton);
+			JPanel checkoutButtonPanel = new JPanel();
+			checkoutButtonPanel.add(checkoutButton);
+			currentBooks.add(checkoutButtonPanel);
 		}
 		
 		return currentBooks;
+	}
+	
+	public void updateCheckoutPanel(){
+		checkout.removeAll();
+		shoppingCartPanel = getShoppingCartPanel();
+		checkout.add(shoppingCartPanel);
+		inventoryPanel = getInventoryPanel();
+		checkout.add(inventoryPanel);
 	}
 	
 	public void updateManageInventoryPanel(){
 		manageInventoryPanel.removeAll();
 		
 		JPanel searchInventory = new JPanel();
-		searchInventory.setLayout(new GridLayout(1,3));
 		searchInventory.add(new JLabel("Showing "+inventoryDisplay.size()+"/"+inventory.getBooks().size()+" books"));
 		JTextField searchField = new JTextField();
+		searchField.setPreferredSize(new Dimension(250,25));
 		searchInventory.add(searchField);
 		
 		JButton searchButton = new JButton("Search");
@@ -286,6 +294,51 @@ public class Controller {
 			}	
 		});
 		searchInventory.add(searchButton);
+		
+		JButton addBookButton = new JButton("Add Book");
+		addBookButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent event){
+				JFrame addBookFrame = new JFrame();
+				JPanel addBookPanel = new JPanel();
+				addBookPanel.setLayout(new GridLayout(10,1));
+				addBookPanel.add(new JLabel("Add a new book to the inventory."));
+				String[] fieldNames = {"ISBN","Title","Author","Edition","New Quantity","New Price","Used Quantity","Used Price"};
+				JTextField[] fields = new JTextField[8];
+				for(int i=0;i<8;i++){
+					JPanel fieldPanel = new JPanel();
+					JLabel fieldLabel = new JLabel(fieldNames[i]+":");
+					fieldLabel.setPreferredSize(new Dimension(100,30));
+					fields[i] = new JTextField();
+					fields[i].setPreferredSize(new Dimension(200,30));
+					fieldPanel.add(fieldLabel);
+					fieldPanel.add(fields[i]);
+					addBookPanel.add(fieldPanel);
+				}
+				JPanel submitButtonPanel = new JPanel();
+				JButton submitButton = new JButton("Submit");
+				submitButton.setPreferredSize(new Dimension(200,25));
+				submitButton.putClientProperty("fields", fields);
+				submitButton.putClientProperty("frame", addBookFrame);
+				submitButton.addActionListener(new ActionListener(){
+					public void actionPerformed(ActionEvent event2){
+						JTextField[] fields = ((JTextField[])((JButton)event2.getSource()).getClientProperty("fields"));
+						//add error checking here
+						inventory.addBook(Integer.parseInt(fields[0].getText()), fields[1].getText(), fields[2].getText(), Integer.parseInt(fields[3].getText()), Integer.parseInt(fields[4].getText()), Double.parseDouble(fields[5].getText()), Integer.parseInt(fields[6].getText()), Double.parseDouble(fields[7].getText()));
+						updateManageInventoryPanel();
+						updateCheckoutPanel();
+						JFrame frame =((JFrame)((JButton)event2.getSource()).getClientProperty("frame"));
+						frame.dispose();
+					}
+				});
+				submitButtonPanel.add(submitButton);
+				addBookPanel.add(submitButtonPanel);
+				
+				addBookFrame.setSize(500,400);
+				addBookFrame.add(addBookPanel);
+				addBookFrame.setVisible(true);
+			}
+		});
+		searchInventory.add(addBookButton);
 		
 		manageInventoryPanel.add(searchInventory,BorderLayout.PAGE_START);
 		
@@ -386,9 +439,8 @@ public class Controller {
 			}
 			transactionPanel.add(new JLabel("TotalPrice: $"+String.format("%.2f",totalPrice)));
 			transactionPanel.add(new JLabel(""));
+			
 		}
-		transactionPanel.revalidate();
-		transactionPanel.repaint();
 	}
 	
 	public void requestBooks(){

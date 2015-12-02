@@ -1,6 +1,7 @@
 package bookstore;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -199,7 +200,6 @@ public class Controller {
 	
 	public JPanel getShoppingCartPanel(){
 		JPanel currentBooks = new JPanel();
-		//currentBooks.setLayout(new GridLayout(shoppingCart.getBooks().size()+1,5));
 		currentBooks.setLayout(new GridLayout(21,1));
 		
 		JPanel cartTitle = new JPanel();
@@ -246,6 +246,65 @@ public class Controller {
 			checkoutButton.setPreferredSize(new Dimension(500,25));
 			checkoutButton.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent event){
+					JFrame checkoutFrame = new JFrame();
+					checkoutFrame.setTitle("Payment Method");
+					checkoutFrame.setSize(400,400);
+					
+					JPanel cashPayment = new JPanel();
+					cashPayment.add(new JLabel("Cash Payment"));
+					
+					JPanel debitPayment = new JPanel();
+					debitPayment.add(new JLabel("Debit Card Payment"));
+					
+					JPanel creditPayment = new JPanel();
+					creditPayment.add(new JLabel("Credit Card Payment"));
+					
+					JPanel paymentTypes = new JPanel();
+					paymentTypes.setLayout(new CardLayout());
+					paymentTypes.add(cashPayment,"cash");
+					paymentTypes.add(debitPayment,"debit");
+					paymentTypes.add(creditPayment,"credit");
+					((CardLayout)paymentTypes.getLayout()).show(paymentTypes,"cash");
+					
+					JRadioButton cashRadio = new JRadioButton("Cash");
+					cashRadio.putClientProperty("paymentTypes", paymentTypes);
+					cashRadio.setSelected(true);
+					cashRadio.addActionListener(new ActionListener(){
+						public void actionPerformed(ActionEvent event){
+							((CardLayout)((JPanel)((JRadioButton)event.getSource()).getClientProperty("paymentTypes")).getLayout()).show((JPanel)((JRadioButton)event.getSource()).getClientProperty("paymentTypes"),"cash");
+						}
+					});
+					JRadioButton debitRadio = new JRadioButton("Debit card");
+					debitRadio.putClientProperty("paymentTypes", paymentTypes);
+					debitRadio.addActionListener(new ActionListener(){
+						public void actionPerformed(ActionEvent event){
+							((CardLayout)((JPanel)((JRadioButton)event.getSource()).getClientProperty("paymentTypes")).getLayout()).show((JPanel)((JRadioButton)event.getSource()).getClientProperty("paymentTypes"),"debit");
+						}
+					});
+					JRadioButton creditRadio = new JRadioButton("Credit card");
+					creditRadio.putClientProperty("paymentTypes", paymentTypes);
+					creditRadio.addActionListener(new ActionListener(){
+						public void actionPerformed(ActionEvent event){
+							((CardLayout)((JPanel)((JRadioButton)event.getSource()).getClientProperty("paymentTypes")).getLayout()).show((JPanel)((JRadioButton)event.getSource()).getClientProperty("paymentTypes"),"credit");
+						}
+					});
+					ButtonGroup group = new ButtonGroup();
+					group.add(cashRadio);
+					group.add(debitRadio);
+					group.add(creditRadio);
+					JPanel checkoutFramePanel = new JPanel();
+					checkoutFramePanel.setLayout(new BorderLayout());
+					JPanel buttonsPanel = new JPanel();
+					buttonsPanel.add(cashRadio);
+					buttonsPanel.add(debitRadio);
+					buttonsPanel.add(creditRadio);
+					
+					checkoutFramePanel.add(buttonsPanel,BorderLayout.PAGE_START);
+					checkoutFramePanel.add(paymentTypes);
+					
+					checkoutFrame.add(checkoutFramePanel);
+					checkoutFrame.setVisible(true);
+					
 					transactions.add(new Transaction(shoppingCart.getBooks()));
 					for(BookPurchase b : shoppingCart.getBooks()){
 						inventory.sellBook(b);
@@ -299,9 +358,9 @@ public class Controller {
 		addBookButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				JFrame addBookFrame = new JFrame();
+				addBookFrame.setTitle("Add new book");
 				JPanel addBookPanel = new JPanel();
-				addBookPanel.setLayout(new GridLayout(10,1));
-				addBookPanel.add(new JLabel("Add a new book to the inventory."));
+				addBookPanel.setLayout(new GridLayout(9,1));
 				String[] fieldNames = {"ISBN","Title","Author","Edition","New Quantity","New Price","Used Quantity","Used Price"};
 				JTextField[] fields = new JTextField[8];
 				for(int i=0;i<8;i++){

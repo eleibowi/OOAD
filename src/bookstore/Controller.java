@@ -1,5 +1,6 @@
 package bookstore;
 
+import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
@@ -52,7 +54,7 @@ public class Controller {
 		JPanel buyFromCustomer = new JPanel();
 		
 		manageInventoryPanel = new JPanel();
-		manageInventoryPanel.setLayout(new GridLayout(2,1));
+		manageInventoryPanel.setLayout(new BorderLayout());
 		updateManageInventoryPanel();
 		
 		transactionPanel = new JPanel();
@@ -285,7 +287,7 @@ public class Controller {
 		});
 		searchInventory.add(searchButton);
 		
-		manageInventoryPanel.add(searchInventory);
+		manageInventoryPanel.add(searchInventory,BorderLayout.PAGE_START);
 		
 		String[] columnHeadings = {"ISBN","Title","Author","Edition","New #","New Price","Used #","Used Price"};
 		Object[][] tableContents = new Object[inventoryDisplay.size()][8];
@@ -300,13 +302,16 @@ public class Controller {
 			tableContents[i][7]=inventoryDisplay.get(i).getUsedPrice();
 		}
 		JTable inventoryTable = new JTable(tableContents,columnHeadings);
-		inventoryTable.setAutoCreateRowSorter(true);
+		
 		inventoryTable.setModel(new DefaultTableModel(tableContents,columnHeadings){
+			//Turn off editing for ISBN values
 			public boolean isCellEditable(int row, int column){
 				if(column==0)
 					return false;
 				return true;
 			}
+			
+			//Specify classes for values, for sorting
 			public Class getColumnClass(int column){
 				if(column==1||column==2)
 					return String.class;
@@ -315,6 +320,8 @@ public class Controller {
 				return Integer.class;
 			}
 		});
+		
+		//Update inventory when table values are changed
 		inventoryTable.getModel().addTableModelListener(new TableModelListener(){
 			public void tableChanged(TableModelEvent e){
 				int changedItem=e.getFirstRow();
@@ -333,96 +340,17 @@ public class Controller {
 			}
 		});
 		
+		//Set the ISBN column to justify left
+		DefaultTableCellRenderer isbnColRenderer = new DefaultTableCellRenderer();
+		isbnColRenderer.setHorizontalAlignment(SwingConstants.LEFT);
+		inventoryTable.getColumnModel().getColumn(0).setCellRenderer(isbnColRenderer);
+		
+		//Add table's sort functionality
+		inventoryTable.setAutoCreateRowSorter(true);
+		
 		JScrollPane scrollPane = new JScrollPane(inventoryTable);
 		inventoryTable.setFillsViewportHeight(true);
 		manageInventoryPanel.add(scrollPane);
-		/*JPanel findBooksHeading= new JPanel();
-		findBooksHeading.setLayout(new GridLayout(1,2));
-		
-		JPanel findBooksHeadingLeft = new JPanel();
-		findBooksHeadingLeft.setLayout(new GridLayout(1,2));
-		findBooksHeadingLeft.add(new JLabel("Title"));
-		findBooksHeadingLeft.add(new JLabel("Author"));
-		findBooksHeading.add(findBooksHeadingLeft);
-		
-		JPanel findBooksHeadingRight = new JPanel();
-		findBooksHeadingRight.setLayout(new GridLayout(1,3));
-		
-		JPanel findBooksHeadingRightLeft = new JPanel();
-		findBooksHeadingRightLeft.setLayout(new GridLayout(1,2));
-		findBooksHeadingRightLeft.add(new JLabel("Edition"));
-		findBooksHeadingRightLeft.add(new JLabel("ISBN"));
-		findBooksHeadingRight.add(findBooksHeadingRightLeft);
-		
-		findBooksHeadingRight.add(new JLabel("Quality"));
-		
-		JPanel findBooksHeadingRightRight = new JPanel();
-		findBooksHeadingRightRight.setLayout(new GridLayout(1,2));
-		findBooksHeadingRightRight.add(new JLabel("#"));
-		findBooksHeadingRightRight.add(new JLabel("Add"));
-		findBooksHeadingRight.add(findBooksHeadingRightRight);
-		findBooksHeading.add(findBooksHeadingRight);
-		manageInventoryPanel.add(findBooksHeading);
-		
-		for(BookEntry b:inventoryDisplay){
-			JPanel findBooksLine = new JPanel();
-			findBooksLine.setLayout(new GridLayout(1,2));
-			
-			JPanel leftSide = new JPanel();
-			leftSide.setLayout(new GridLayout(1,2));
-			JTextArea titleArea = new JTextArea(b.getTitle());
-			findBooksLine.add(titleArea);
-			leftSide.add(new JLabel(b.getAuthor()));
-			findBooksLine.add(leftSide);
-			
-			JPanel rightSide = new JPanel();
-			rightSide.setLayout(new GridLayout(1,3));
-			
-			JPanel rightLeft = new JPanel();
-			rightLeft.setLayout(new GridLayout(1,2));
-			rightLeft.add(new JLabel(""+b.getEdition()));
-			rightLeft.add(new JLabel(""+b.getIsbn()));
-			rightSide.add(rightLeft);
-			
-			String[] newUsedStrings = new String[2];
-			if(b.getNewQuantity()>0)
-				newUsedStrings[0]="New: $"+String.format("%.2f", b.getNewPrice());
-			else
-				newUsedStrings[0]="New: Out of Stock";
-			if(b.getUsedQuantity()>0)
-				newUsedStrings[1]="Used: $"+String.format("%.2f",b.getUsedPrice());
-			else
-				newUsedStrings[1]="Used: Out of Stock";
-			JComboBox<String> newUsed = new JComboBox<String>(newUsedStrings);
-			rightSide.add(newUsed);
-			
-			JPanel rightRight = new JPanel();
-			rightRight.setLayout(new GridLayout(1,2));
-			
-			JTextField quantField = new JTextField("1");
-			rightRight.add(quantField);
-			
-			JButton addToCart = new JButton("+");
-			addToCart.putClientProperty("book", b);
-			addToCart.putClientProperty("newUsed",newUsed);
-			addToCart.putClientProperty("quantity",quantField);
-			addToCart.addActionListener(new ActionListener(){
-				public void actionPerformed(ActionEvent event){
-					String quantString = ((JTextField)((JButton)event.getSource()).getClientProperty("quantity")).getText();
-					//check if quantString is valid here
-					if(((String)((JComboBox<String>)((JButton)event.getSource()).getClientProperty("newUsed")).getSelectedItem()).charAt(0)=='U'&&((String)((JComboBox<String>)((JButton)event.getSource()).getClientProperty("newUsed")).getSelectedItem()).indexOf("Out of Stock")==-1)
-						shoppingCart.addBook((BookEntry)((JButton)event.getSource()).getClientProperty("book"), Integer.parseInt(quantString), true);
-					else if(((String)((JComboBox<String>)((JButton)event.getSource()).getClientProperty("newUsed")).getSelectedItem()).charAt(0)=='N'&&((String)((JComboBox<String>)((JButton)event.getSource()).getClientProperty("newUsed")).getSelectedItem()).indexOf("Out of Stock")==-1)
-						shoppingCart.addBook((BookEntry)((JButton)event.getSource()).getClientProperty("book"), Integer.parseInt(quantString), false);
-					//shoppingCartPanel=getShoppingCartPanel();
-					updateCheckoutPanel();
-				}
-			});
-			rightRight.add(addToCart);
-			rightSide.add(rightRight);
-			findBooksLine.add(rightSide);
-			manageInventoryPanel.add(findBooksLine);
-		}*/
 	}
 	
 	public void updateTransactionPanel(){

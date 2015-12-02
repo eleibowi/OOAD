@@ -10,6 +10,7 @@ import javax.swing.*;
 
 public class Controller {
 	private Inventory inventory;
+	private ArrayList<BookEntry> inventoryDisplay;
 	private ArrayList<Transaction> transactions;
 	private ArrayList<OrderRequest> orderRequests;
 	private ShoppingCart shoppingCart;
@@ -28,7 +29,7 @@ public class Controller {
 		inventory.addBook(3, "Harry Potter", "JK Rowling", 1, 20, 18, 17, 10);
 		inventory.addBook(4, "Catcher in the Rye", "JD Salinger", 4, 15, 15, 5, 2);
 		inventory.addBook(5, "Broadband Telecommunications Management", "Riaz Esmailzadeh", 1, 7, 45, 0, 0);
-		inventory.displayInventory();
+		inventoryDisplay = inventory.getBooks();
 		shoppingCart=new ShoppingCart();
 		
 		frame = new JFrame("Rinku's Bookstore");
@@ -66,8 +67,32 @@ public class Controller {
 		findBooks.setLayout(new GridLayout(21,1));
 		
 		JPanel findBooksTitle = new JPanel();
+		findBooksTitle.setLayout(new GridLayout(1,2));
 		findBooksTitle.add(new JLabel("Choose books from inventory"));
+		
+		JPanel searchInventory = new JPanel();
+		searchInventory.setLayout(new GridLayout(1,3));
+		searchInventory.add(new JLabel("Search"));
+		JTextField searchField = new JTextField();
+		searchInventory.add(searchField);
+		
+		JButton searchButton = new JButton("Go");
+		searchButton.putClientProperty("searchKey", searchField);
+		searchButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent event){
+				inventoryDisplay = new ArrayList<BookEntry>();
+				for(BookEntry b:inventory.getBooks()){
+					String enteredText = ((JTextField)((JButton)event.getSource()).getClientProperty("searchKey")).getText().toLowerCase();
+					if(b.getAuthor().toLowerCase().indexOf(enteredText)!=-1||b.getTitle().toLowerCase().indexOf(enteredText)!=-1||(""+b.getIsbn()).equals(enteredText))
+						inventoryDisplay.add(b);
+				}
+				updateCheckoutPanel();
+			}	
+		});
+		searchInventory.add(searchButton);
+		
 		findBooks.add(findBooksTitle);
+		findBooks.add(searchInventory);
 		
 		JPanel findBooksHeading= new JPanel();
 		findBooksHeading.setLayout(new GridLayout(1,2));
@@ -97,7 +122,7 @@ public class Controller {
 		findBooksHeading.add(findBooksHeadingRight);
 		findBooks.add(findBooksHeading);
 		
-		for(BookEntry b:inventory.getBooks()){
+		for(BookEntry b:inventoryDisplay){
 			JPanel findBooksLine = new JPanel();
 			findBooksLine.setLayout(new GridLayout(1,2));
 			
@@ -239,7 +264,7 @@ public class Controller {
 		transactionHeading.add(new JLabel("#"));
 		transactionHeading.add(new JLabel("Price"));
 		transactionPanel.add(transactionHeading);
-		
+
 		for(Transaction t: transactions){
 			JPanel transactionRow=new JPanel();
 			transactionRow.setLayout(new GridLayout(1,5));
@@ -285,12 +310,6 @@ public class Controller {
 	public void buyBooksFromCustomer(){
 		ShoppingCart shoppingCart = new ShoppingCart();
 		
-	}
-	
-	public ArrayList<BookPurchase> chooseBooksFromInventory(){
-		ArrayList<BookPurchase> books = new ArrayList<BookPurchase>();
-		//user input to select books and quantity, make BookPurchase object for each book selected and add it to ArrayList
-		return books;
 	}
 	
 	public void addNewBook(int isbn, String title, String author, int edition, int usedQuantity, double usedPrice, int newQuantity, double newPrice){

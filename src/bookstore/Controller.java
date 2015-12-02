@@ -72,11 +72,11 @@ public class Controller {
 		
 		JPanel searchInventory = new JPanel();
 		searchInventory.setLayout(new GridLayout(1,3));
-		searchInventory.add(new JLabel("Search"));
+		searchInventory.add(new JLabel("Showing "+inventoryDisplay.size()+"/"+inventory.getBooks().size()+" books"));
 		JTextField searchField = new JTextField();
 		searchInventory.add(searchField);
 		
-		JButton searchButton = new JButton("Go");
+		JButton searchButton = new JButton("Search");
 		searchButton.putClientProperty("searchKey", searchField);
 		searchButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent event){

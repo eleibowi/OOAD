@@ -32,10 +32,15 @@ public class Inventory {
 	}
 	
 	public void sellBook(BookPurchase book){
+		int index=-1;
+		for(int i=0;i<books.size();i++)
+			if(books.get(i).getIsbn()==book.getIsbn())
+				index=i;
 		if(book.isUsed())
 			book.setUsedQuantity(book.getUsedQuantity()-book.getQuantity());
 		else
 			book.setNewQuantity(book.getNewQuantity()-book.getQuantity());
+		books.set(index,book);
 		moneyInRegister+=book.getQuantity()*book.getPrice();
 	}
 	

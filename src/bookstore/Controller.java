@@ -656,6 +656,8 @@ public class Controller {
 							}
 							((JFrame)((JButton)event.getSource()).getClientProperty("frame")).dispose();
 							updateTransactionPanel();
+							updateCheckoutPanel();
+							updateManageInventoryPanel();
 						}
 					});
 					confirmReturn.setPreferredSize(new Dimension(200,25));
@@ -663,7 +665,6 @@ public class Controller {
 					
 					returnFrame.add(returnPanel);
 					returnFrame.setVisible(true);
-					updateTransactionPanel();
 				}
 			}
 		});
@@ -676,30 +677,6 @@ public class Controller {
 		JScrollPane scrollPane = new JScrollPane(transactionTable);
 		transactionTable.setFillsViewportHeight(true);
 		transactionPanel.add(scrollPane);
-	}
-	
-	public void requestBooks(){
-		ShoppingCart shoppingCart = new ShoppingCart();
-		String customerName="";
-		int customerPhone=0;
-		String customerEmail="";
-		//user input: choose books to request
-		orderRequests.add(new OrderRequest(shoppingCart.getBooks(),customerName,customerPhone,customerEmail));
-	}
-	
-	public void returnBooks(Transaction transaction){
-		ShoppingCart shoppingCart = new ShoppingCart();
-		//user input: choose books to remove
-		transactions.add(new Transaction(shoppingCart.getBooks(),transaction.getTime(),transaction.getPaymentType()));
-		transactions.remove(transaction);
-	}
-	
-	public Inventory getInventory(){
-		return inventory;
-	}
-	
-	public ShoppingCart getShoppingCart(){
-		return shoppingCart;
 	}
 	
 	public static void main(String[]args){

@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
@@ -40,6 +41,15 @@ public class Controller {
 		inventory.addBook(4, "Catcher in the Rye", "JD Salinger", 4, 15, 15, 5, 2);
 		inventory.addBook(5, "Broadband Telecommunications Management", "Riaz Esmailzadeh", 1, 7, 45, 0, 0);
 		inventory.addBook(6, "Othello", "William Shakespeare", 6, 12, 12, 4, 6);
+		inventory.addBook(7, "Rich Dad Poor Dad", "Robert Kiyosaki", 3, 10, 20, 5, 10);
+        inventory.addBook(8, "Steve Jobs: The Exclusive Biography", "Walter Isaacson", 1, 20, 18, 17, 10);
+        inventory.addBook(9, "The Golden Tap", "Kashyap Deorah", 4, 15, 15, 5, 2);
+        inventory.addBook(10, "World's Best Boyfriend", "Durjoy Dutta", 1, 7, 45, 0, 0);
+        inventory.addBook(11, "To Kill A Mockingbird", "Harper Lee", 6, 12, 22, 4, 6);                                                
+        inventory.addBook(12, "The Secret", "Rhonda Byrne", 1, 7, 45, 0, 0);
+        inventory.addBook(13, "Heretic", "Harper Collins", 6, 12, 12, 4, 6);
+        inventory.addBook(14, "Jesus Calling", "Young", 3, 10, 20, 5, 10);
+        inventory.addBook(15, "Atlantis Cards", "Diana Cooper", 1, 20, 18, 17, 10);
 		inventoryDisplay = inventory.getBooks();
 		shoppingCart=new ShoppingCart();
 		
@@ -52,8 +62,6 @@ public class Controller {
 		checkout.setLayout(new GridLayout(1,2));
 		updateCheckoutPanel();
 		
-		JPanel returnPurchase = new JPanel();
-		
 		JPanel buyFromCustomer = new JPanel();
 		
 		manageInventoryPanel = new JPanel();
@@ -61,12 +69,11 @@ public class Controller {
 		updateManageInventoryPanel();
 		
 		transactionPanel = new JPanel();
-		transactionPanel.setLayout(new GridLayout(1,1));
+		transactionPanel.setLayout(new BorderLayout());
 		updateTransactionPanel();
 		
 		JTabbedPane tabbedPane=new JTabbedPane();
 		tabbedPane.addTab("Checkout", checkout);
-		tabbedPane.addTab("Return Purchase", returnPurchase);
 		tabbedPane.addTab("Buy From Customer", buyFromCustomer);
 		tabbedPane.addTab("Manage Inventory", manageInventoryPanel);
 		tabbedPane.addTab("Past Transactions", transactionPanel);
@@ -534,23 +541,25 @@ public class Controller {
 	
 	public void updateTransactionPanel(){
 		transactionPanel.removeAll();
-		String[] columnHeadings = {"Time","Book","Quality","#","Price","Payment Type"};
+		
+		String[] columnHeadings = {"Transaction ID","Time","Book","Quality","#","Price","Payment Type"};
 		int numRows = 0;
 		for(Transaction t:transactions)
 			numRows+=t.getBooks().size();
 		int rowCount=0;
-		Object[][] tableContents = new Object[numRows][6];
+		Object[][] tableContents = new Object[numRows][7];
 		for(int i=0;i<transactions.size();i++){
 			for(int j=0;j<transactions.get(i).getBooks().size();j++){
-				tableContents[rowCount][0]=transactions.get(i).getTime();
-				tableContents[rowCount][5]=transactions.get(i).getPaymentType();
-				tableContents[rowCount][1]=transactions.get(i).getBooks().get(j).getTitle();
+				tableContents[rowCount][0]=transactions.get(i).getId();
+				tableContents[rowCount][1]=transactions.get(i).getTime();
+				tableContents[rowCount][2]=transactions.get(i).getBooks().get(j).getTitle();
 				if(transactions.get(i).getBooks().get(j).isUsed())
-					tableContents[rowCount][2]="Used";
+					tableContents[rowCount][3]="Used";
 				else
-					tableContents[rowCount][2]="New";
-				tableContents[rowCount][3]=transactions.get(i).getBooks().get(j).getQuantity();
-				tableContents[rowCount][4]="$"+String.format("%.2f",transactions.get(i).getBooks().get(j).getPrice());
+					tableContents[rowCount][3]="New";
+				tableContents[rowCount][4]=transactions.get(i).getBooks().get(j).getQuantity();
+				tableContents[rowCount][5]=transactions.get(i).getBooks().get(j).getPrice();
+				tableContents[rowCount][6]=transactions.get(i).getPaymentType();
 				rowCount++;
 			}
 			
@@ -562,7 +571,81 @@ public class Controller {
 			public boolean isCellEditable(int row, int column){
 				return false;
 			}
+			
+			//Specify classes for values, for sorting
+			public Class getColumnClass(int column){
+				if(column==0||column==4)
+					return Integer.class;
+				if(column==5)
+					return Double.class;
+				if(column==1)
+					return Date.class;
+				return String.class;
+			}
 		});
+		
+		//Set the ID column to justify left
+		DefaultTableCellRenderer idColRenderer = new DefaultTableCellRenderer();
+		idColRenderer.setHorizontalAlignment(SwingConstants.LEFT);
+		transactionTable.getColumnModel().getColumn(0).setCellRenderer(idColRenderer);
+		transactionTable.getColumnModel().getColumn(4).setCellRenderer(idColRenderer);
+		transactionTable.getColumnModel().getColumn(5).setCellRenderer(idColRenderer);
+		
+		JPanel returnPanel = new JPanel();
+		JButton returnButton = new JButton("Return selected books");
+		returnButton.putClientProperty("table",transactionTable);
+		returnButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent event){
+				JTable table = (JTable)((JButton)event.getSource()).getClientProperty("table");
+				ArrayList<BookPurchase> selectedPurchases = new ArrayList<BookPurchase>();
+				for(int i:table.getSelectedRows())
+					for(Transaction t:transactions)
+						if((int)table.getValueAt(i, 0)==t.getId())
+							for(BookPurchase b:t.getBooks())
+								if(b.getTitle().equals(table.getValueAt(i, 2))&&b.getPrice()==(double)table.getValueAt(i,5))
+									selectedPurchases.add(b);
+				if(selectedPurchases.size()>0){
+					JFrame returnFrame = new JFrame();
+					JPanel returnPanel = new JPanel();
+					returnPanel.setLayout(new GridLayout(1+selectedPurchases.size(),1));
+					returnFrame.setSize(300,selectedPurchases.size()*30+100);
+					ArrayList<JTextField> returnFields = new ArrayList<JTextField>();
+					for(BookPurchase b:selectedPurchases){
+						JPanel returnSelection = new JPanel();
+						JLabel returnLabel = new JLabel(b.getTitle()+" Return: ");
+						JTextField returnField = new JTextField(""+b.getQuantity());
+						returnField.setPreferredSize(new Dimension(100,25));
+						returnFields.add(returnField);
+						returnSelection.add(returnLabel);
+						returnSelection.add(returnField);
+						returnPanel.add(returnSelection);
+					}
+					JButton confirmReturn = new JButton("Confirm");
+					confirmReturn.putClientProperty("selected",selectedPurchases);
+					confirmReturn.putClientProperty("fields", returnFields);
+					confirmReturn.addActionListener(new ActionListener(){
+						public void actionPerformed(ActionEvent event){
+							ArrayList<BookPurchase> selectedPurchases = (ArrayList<BookPurchase>)((JButton)event.getSource()).getClientProperty("selected");
+							ArrayList<JTextField> returnFields = (ArrayList<JTextField>)((JButton)event.getSource()).getClientProperty("fields");
+							for(int i=0;i<returnFields.size();i++)
+								if(Integer.parseInt(returnFields.get(i).getText())>selectedPurchases.get(i).getQuantity())
+									return;
+							for(int i=0;i<transactions.size();i++)
+								for(int j=0;j<transactions.get(i).getBooks().size();j++);
+									//if(transactions.get(i).getQuantity()==)
+						}
+					});
+					returnPanel.add(confirmReturn);
+					
+					
+					returnFrame.add(returnPanel);
+					returnFrame.setVisible(true);
+					updateTransactionPanel();
+				}
+			}
+		});
+		returnPanel.add(returnButton);
+		transactionPanel.add(returnPanel,BorderLayout.PAGE_START);
 		
 		//Add table's sort functionality
 		transactionTable.setAutoCreateRowSorter(true);

@@ -24,12 +24,11 @@ public class Inventory {
 		books.remove(book);
 	}
 	
-	public void restockUsedBook(BookEntry book, int quantity){
-		book.setUsedQuantity(book.getUsedQuantity()+quantity);
-	}
-	
-	public void restockNewBook(BookEntry book, int quantity){
-		book.setNewQuantity(book.getNewQuantity()+quantity);
+	public void restockBook(BookEntry book, int quantity, boolean used){
+		if(used)
+			book.setUsedQuantity(book.getUsedQuantity()+quantity);
+		else
+			book.setNewQuantity(book.getNewQuantity()+quantity);
 	}
 	
 	public void sellBook(BookPurchase book){

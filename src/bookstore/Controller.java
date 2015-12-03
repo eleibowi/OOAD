@@ -64,7 +64,6 @@ public class Controller {
 			selected++;
 		tabbedPane.removeAll();
 		tabbedPane.addTab("Checkout",buildPanel("Checkout"));
-		tabbedPane.addTab("Buy From Customer",buildPanel("Buy From Customer"));
 		tabbedPane.addTab("Manage Inventory",buildPanel("Manage Inventory"));
 		tabbedPane.addTab("Past Transactions",buildPanel("Past Transactions"));
 		tabbedPane.setSelectedIndex(selected);
@@ -365,9 +364,6 @@ public class Controller {
 			checkout.add(currentBooks);
 			checkout.add(findBooks);
 			return checkout;
-		}
-		if(panelType.equals("Buy From Customer")){
-			
 		}
 		if(panelType.equals("Manage Inventory")){
 			JPanel manageInventoryPanel = new JPanel();

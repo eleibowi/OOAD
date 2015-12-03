@@ -243,6 +243,7 @@ public class Controller {
 			currentBooks.add(currentBooksLine);
 		}
 		if(shoppingCart.getBooks().size()>0){
+			currentBooks.add(new JLabel("Total Price: $"+String.format("%.2f",shoppingCart.getTotalPrice())));
 			JButton checkoutButton=new JButton("Check Out");
 			checkoutButton.setPreferredSize(new Dimension(500,25));
 			checkoutButton.addActionListener(new ActionListener(){

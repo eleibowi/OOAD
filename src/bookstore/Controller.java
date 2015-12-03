@@ -61,7 +61,7 @@ public class Controller {
 		updateManageInventoryPanel();
 		
 		transactionPanel = new JPanel();
-		transactionPanel.setLayout(new GridLayout(21,1));
+		transactionPanel.setLayout(new GridLayout(1,1));
 		updateTransactionPanel();
 		
 		JTabbedPane tabbedPane=new JTabbedPane();
@@ -260,7 +260,7 @@ public class Controller {
 					amountDueLabel.setPreferredSize(new Dimension(300,25));
 					cashTopHalf.add(amountDueLabel);
 					cashTopHalf.add(new JLabel("Customer Paid: $"));
-					JTextField paidCashField = new JTextField();
+					JTextField paidCashField = new JTextField(String.format("%.2f",shoppingCart.getTotalPrice()));
 					paidCashField.setPreferredSize(new Dimension(100,25));
 					cashTopHalf.add(paidCashField);
 					
@@ -463,12 +463,12 @@ public class Controller {
 			tableContents[i][6]=inventoryDisplay.get(i).getUsedQuantity();
 			tableContents[i][7]=inventoryDisplay.get(i).getUsedPrice();
 		}
-		JTable inventoryTable = new JTable(tableContents,columnHeadings);
 		
+		JTable inventoryTable = new JTable(tableContents,columnHeadings);
 		inventoryTable.setModel(new DefaultTableModel(tableContents,columnHeadings){
 			//Turn off editing for ISBN values
 			public boolean isCellEditable(int row, int column){
-				if(column==0)
+				if(column==0||column==8)
 					return false;
 				return true;
 			}
@@ -479,6 +479,8 @@ public class Controller {
 					return String.class;
 				if(column==5||column==7)
 					return Double.class;
+				if(column==8)
+					return JButton.class;
 				return Integer.class;
 			}
 		});
@@ -517,39 +519,43 @@ public class Controller {
 	
 	public void updateTransactionPanel(){
 		transactionPanel.removeAll();
-		
-		JPanel transactionHeading = new JPanel();
-		transactionHeading.setLayout(new GridLayout(1,5));
-		transactionHeading.add(new JLabel("Time"));
-		transactionHeading.add(new JLabel("Book"));
-		transactionHeading.add(new JLabel("Quality"));
-		transactionHeading.add(new JLabel("#"));
-		transactionHeading.add(new JLabel("Price"));
-		transactionPanel.add(transactionHeading);
-
-		for(int t=transactions.size()-1;t>=0;t--){
-			JPanel transactionRow=new JPanel();
-			transactionRow.setLayout(new GridLayout(1,5));
-			transactionRow.add(new JLabel(transactions.get(t).getTime().toString()));
-			double totalPrice=0;
-			for(BookPurchase b:transactions.get(t).getBooks()){
-				transactionRow.add(new JLabel(b.getTitle()));
-				if(b.isUsed())
-					transactionRow.add(new JLabel("Used"));
+		String[] columnHeadings = {"Time","Book","Quality","#","Price"};
+		int numRows = 0;
+		for(Transaction t:transactions)
+			numRows+=t.getBooks().size();
+		int rowCount=0;
+		Object[][] tableContents = new Object[numRows][5];
+		for(int i=0;i<transactions.size();i++){
+			for(int j=0;j<transactions.get(i).getBooks().size();j++){
+				if(j==0)
+					tableContents[rowCount][0]=transactions.get(i).getTime();
 				else
-					transactionRow.add(new JLabel("New"));
-				transactionRow.add(new JLabel(""+b.getQuantity()));
-				transactionRow.add(new JLabel("$"+String.format("%.2f",b.getPrice())));
-				transactionPanel.add(transactionRow);
-				transactionRow=new JPanel();
-				transactionRow.setLayout(new GridLayout(1,5));
-				transactionRow.add(new JLabel(""));
-				totalPrice+=b.getPrice();
+					tableContents[rowCount][0]="";
+				tableContents[rowCount][1]=transactions.get(i).getBooks().get(j).getTitle();
+				if(transactions.get(i).getBooks().get(j).isUsed())
+					tableContents[rowCount][2]="Used";
+				else
+					tableContents[rowCount][2]="New";
+				tableContents[rowCount][3]=transactions.get(i).getBooks().get(j).getQuantity();
+				tableContents[rowCount][4]="$"+String.format("%.2f",transactions.get(i).getBooks().get(j).getPrice());
+				rowCount++;
 			}
-			transactionPanel.add(new JLabel("TotalPrice: $"+String.format("%.2f",totalPrice)));
-			transactionPanel.add(new JLabel(""));
-			
 		}
+		
+		JTable transactionTable = new JTable(tableContents,columnHeadings);
+		transactionTable.setModel(new DefaultTableModel(tableContents,columnHeadings){
+			//Turn off editing
+			public boolean isCellEditable(int row, int column){
+				return false;
+			}
+		});
+		
+		//Add table's sort functionality
+		transactionTable.setAutoCreateRowSorter(true);
+		
+		JScrollPane scrollPane = new JScrollPane(transactionTable);
+		transactionTable.setFillsViewportHeight(true);
+		transactionPanel.add(scrollPane);
 	}
 	
 	public void requestBooks(){

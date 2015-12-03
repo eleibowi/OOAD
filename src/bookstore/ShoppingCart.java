@@ -3,7 +3,7 @@ package bookstore;
 import java.util.ArrayList;
 
 public class ShoppingCart {
-	protected ArrayList<BookPurchase> books;
+	private ArrayList<BookPurchase> books;
 	
 	public ShoppingCart(){
 		books = new ArrayList<BookPurchase>();

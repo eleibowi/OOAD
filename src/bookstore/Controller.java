@@ -80,7 +80,6 @@ public class Controller {
 			findBooksTitle.add(new JLabel("Choose books from inventory"));
 			
 			JPanel searchInventory = new JPanel();
-			//searchInventory.setLayout(new GridLayout(1,3));
 			searchInventory.add(new JLabel("Showing "+inventoryDisplay.size()+"/"+inventory.getBooks().size()+" books"));
 			
 			//Search for book by title, author, or isbn
@@ -177,13 +176,17 @@ public class Controller {
 				addToCart.putClientProperty("quantity",quantField);
 				addToCart.addActionListener(new ActionListener(){
 					public void actionPerformed(ActionEvent event){
-						String quantString = ((JTextField)((JButton)event.getSource()).getClientProperty("quantity")).getText();
-						//check if quantString is valid here
-						if(((String)((JComboBox<String>)((JButton)event.getSource()).getClientProperty("newUsed")).getSelectedItem()).charAt(0)=='U'&&((String)((JComboBox<String>)((JButton)event.getSource()).getClientProperty("newUsed")).getSelectedItem()).indexOf("Out of Stock")==-1)
-							shoppingCart.addBook((BookEntry)((JButton)event.getSource()).getClientProperty("book"), Integer.parseInt(quantString), true);
-						else if(((String)((JComboBox<String>)((JButton)event.getSource()).getClientProperty("newUsed")).getSelectedItem()).charAt(0)=='N'&&((String)((JComboBox<String>)((JButton)event.getSource()).getClientProperty("newUsed")).getSelectedItem()).indexOf("Out of Stock")==-1)
-							shoppingCart.addBook((BookEntry)((JButton)event.getSource()).getClientProperty("book"), Integer.parseInt(quantString), false);
-						//shoppingCartPanel=getShoppingCartPanel();
+						int quantity = Integer.parseInt(((JTextField)((JButton)event.getSource()).getClientProperty("quantity")).getText());
+						boolean used = false;
+						if(((String)((JComboBox<String>)((JButton)event.getSource()).getClientProperty("newUsed")).getSelectedItem()).charAt(0)=='U')
+							used=true;
+						for(int i=0;i<shoppingCart.getBooks().size();i++)
+							if(shoppingCart.getBooks().get(i).getIsbn()==((BookEntry)((JButton)event.getSource()).getClientProperty("book")).getIsbn()){
+								shoppingCart.addQuantity(shoppingCart.getBooks().get(i),quantity);
+								updatePanels();
+								return;
+							}
+						shoppingCart.addBook((BookEntry)((JButton)event.getSource()).getClientProperty("book"), quantity, used);
 						updatePanels();
 					}
 				});
@@ -591,11 +594,11 @@ public class Controller {
 						JFrame returnFrame = new JFrame();
 						JPanel returnPanel = new JPanel();
 						returnPanel.setLayout(new GridLayout(1+selectedPurchases.size(),1));
-						returnFrame.setSize(400,selectedPurchases.size()*30+100);
+						returnFrame.setSize(500,selectedPurchases.size()*30+100);
 						ArrayList<JTextField> returnFields = new ArrayList<JTextField>();
 						for(BookPurchase b:selectedPurchases){
 							JPanel returnSelection = new JPanel();
-							JLabel returnLabel = new JLabel(b.getTitle()+" Return: ");
+							JLabel returnLabel = new JLabel("Returning "+b.getTitle());
 							JTextField returnField = new JTextField(""+b.getQuantity());
 							returnField.setPreferredSize(new Dimension(100,25));
 							returnFields.add(returnField);
@@ -635,8 +638,10 @@ public class Controller {
 								updatePanels();
 							}
 						});
+						JPanel confirmReturnPanel = new JPanel();
 						confirmReturn.setPreferredSize(new Dimension(200,25));
-						returnPanel.add(confirmReturn);
+						confirmReturnPanel.add(confirmReturn);
+						returnPanel.add(confirmReturnPanel);
 						
 						returnFrame.add(returnPanel);
 						returnFrame.setVisible(true);

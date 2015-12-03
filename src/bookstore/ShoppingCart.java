@@ -17,8 +17,13 @@ public class ShoppingCart {
 		books.remove(book);
 	}
 	
-	public void editQuantity(BookPurchase book, int quantity){
-		book.setQuantity(quantity);
+	public void addQuantity(BookPurchase book, int quantity){
+		for(int i=0;i<books.size();i++)
+			if(books.get(i).getIsbn()==book.getIsbn()){
+				BookPurchase updatedBook = books.get(i);
+				updatedBook.setQuantity(updatedBook.getQuantity()+quantity);
+				books.set(i,updatedBook);
+			}
 	}
 	
 	public double getTotalPrice(){

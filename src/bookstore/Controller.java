@@ -449,8 +449,6 @@ public class Controller {
 		});
 		searchInventory.add(addBookButton);
 		
-		manageInventoryPanel.add(searchInventory,BorderLayout.PAGE_START);
-		
 		String[] columnHeadings = {"ISBN","Title","Author","Edition","New #","New Price","Used #","Used Price"};
 		Object[][] tableContents = new Object[inventoryDisplay.size()][8];
 		for(int i=0;i<inventoryDisplay.size();i++){
@@ -511,6 +509,23 @@ public class Controller {
 		
 		//Add table's sort functionality
 		inventoryTable.setAutoCreateRowSorter(true);
+		
+		JButton removeBookButton = new JButton("Delete Selected");
+		removeBookButton.putClientProperty("table", inventoryTable);
+		removeBookButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent event){
+				JTable table = (JTable)((JButton)event.getSource()).getClientProperty("table");
+				for(int i:table.getSelectedRows())
+					for(int j=0;j<inventory.getBooks().size();j++)
+						if(inventory.getBooks().get(j).getIsbn()==(int)table.getValueAt(i,0))
+							inventory.removeBook(inventory.getBooks().get(j));
+				updateManageInventoryPanel();
+				updateCheckoutPanel();
+			}
+		});
+		searchInventory.add(removeBookButton);
+		
+		manageInventoryPanel.add(searchInventory,BorderLayout.PAGE_START);
 		
 		JScrollPane scrollPane = new JScrollPane(inventoryTable);
 		inventoryTable.setFillsViewportHeight(true);

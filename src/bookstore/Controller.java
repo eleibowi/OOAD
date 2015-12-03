@@ -15,6 +15,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import javax.swing.text.NumberFormatter;
 
 public class Controller {
 	private Inventory inventory;
@@ -251,7 +252,62 @@ public class Controller {
 					checkoutFrame.setSize(400,400);
 					
 					JPanel cashPayment = new JPanel();
-					cashPayment.add(new JLabel("Cash Payment"));
+					cashPayment.setLayout(new GridLayout(2,1));
+		
+					JPanel cashTopHalf = new JPanel();
+					JLabel amountDueLabel = new JLabel("Amount Due: $"+String.format("%.2f",shoppingCart.getTotalPrice()));
+					amountDueLabel.setPreferredSize(new Dimension(300,25));
+					cashTopHalf.add(amountDueLabel);
+					cashTopHalf.add(new JLabel("Customer Paid: $"));
+					JTextField paidCashField = new JTextField();
+					paidCashField.setPreferredSize(new Dimension(100,25));
+					cashTopHalf.add(paidCashField);
+					
+					JPanel cashBottomHalf = new JPanel();
+					cashBottomHalf.setLayout(new CardLayout());
+					
+					JPanel beforePayment = new JPanel();
+					JButton getChangeButton = new JButton("Confirm");
+					getChangeButton.putClientProperty("entered", paidCashField);
+					getChangeButton.putClientProperty("bottomHalf", cashBottomHalf);
+					getChangeButton.putClientProperty("frame",checkoutFrame);
+					getChangeButton.setPreferredSize(new Dimension(300,25));
+					getChangeButton.addActionListener(new ActionListener(){
+						public void actionPerformed(ActionEvent event){
+							JPanel afterPayment = new JPanel();
+							double change = Double.parseDouble(((String)((JTextField)((JButton)event.getSource()).getClientProperty("entered")).getText()))-shoppingCart.getTotalPrice();
+							if(change<0)
+								return;
+							JLabel changeDue = new JLabel("Change due: $"+String.format("%.2f",change));
+							changeDue.setPreferredSize(new Dimension(300,25));
+							JButton confirmButton = new JButton("Confirm");
+							confirmButton.setPreferredSize(new Dimension(200,25));
+							confirmButton.putClientProperty("frame", (JFrame)((JButton)event.getSource()).getClientProperty("frame"));
+							confirmButton.addActionListener(new ActionListener(){
+								public void actionPerformed(ActionEvent event){
+									transactions.add(new Transaction(shoppingCart.getBooks()));
+									for(BookPurchase b : shoppingCart.getBooks()){
+										inventory.sellBook(b);
+									}
+									shoppingCart.setBooks(new ArrayList<BookPurchase>());
+									updateCheckoutPanel();
+									updateTransactionPanel();
+									((JFrame)((JButton)event.getSource()).getClientProperty("frame")).dispose();
+								}
+							});
+							afterPayment.add(changeDue);
+							afterPayment.add(confirmButton);
+							JPanel bottomHalf = ((JPanel)((JButton)event.getSource()).getClientProperty("bottomHalf"));
+							bottomHalf.add(afterPayment,"after");
+							((CardLayout)(bottomHalf.getLayout())).show(bottomHalf, "after");
+						}
+					});
+					beforePayment.add(getChangeButton);
+					cashBottomHalf.add(beforePayment,"before");
+					((CardLayout)cashBottomHalf.getLayout()).show(cashBottomHalf, "before");
+					
+					cashPayment.add(cashTopHalf);
+					cashPayment.add(cashBottomHalf);
 					
 					JPanel debitPayment = new JPanel();
 					debitPayment.add(new JLabel("Debit Card Payment"));
@@ -305,13 +361,6 @@ public class Controller {
 					checkoutFrame.add(checkoutFramePanel);
 					checkoutFrame.setVisible(true);
 					
-					transactions.add(new Transaction(shoppingCart.getBooks()));
-					for(BookPurchase b : shoppingCart.getBooks()){
-						inventory.sellBook(b);
-					}
-					shoppingCart.setBooks(new ArrayList<BookPurchase>());
-					updateCheckoutPanel();
-					updateTransactionPanel();
 				}
 			});
 			JPanel checkoutButtonPanel = new JPanel();

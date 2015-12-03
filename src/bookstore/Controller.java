@@ -537,7 +537,7 @@ public class Controller {
 		String[] columnHeadings = {"Time","Book","Quality","#","Price","Payment Type"};
 		int numRows = 0;
 		for(Transaction t:transactions)
-			numRows+=t.getBooks().size();
+			numRows+=t.getBooks().size()+1;
 		int rowCount=0;
 		Object[][] tableContents = new Object[numRows][6];
 		for(int i=0;i<transactions.size();i++){
@@ -559,6 +559,12 @@ public class Controller {
 				tableContents[rowCount][4]="$"+String.format("%.2f",transactions.get(i).getBooks().get(j).getPrice());
 				rowCount++;
 			}
+			if(rowCount!=numRows-1){
+				String[] blankLine={"","","","","",""};
+				tableContents[rowCount]=blankLine;
+				rowCount++;
+			}
+			
 		}
 		
 		JTable transactionTable = new JTable(tableContents,columnHeadings);

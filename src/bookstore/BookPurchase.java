@@ -10,9 +10,9 @@ public class BookPurchase extends BookEntry{
 		this.setQuantity(quantity);
 		this.setUsed(used);
 		if(used)
-			setPrice((book.getUsedPrice()-book.getUsedDiscount())*quantity);
+			setPrice((book.getUsedPrice()-book.getUsedDiscount()));
 		else
-			setPrice((book.getNewPrice()-book.getNewDiscount())*quantity);
+			setPrice((book.getNewPrice()-book.getNewDiscount()));
 	}
 
 	public double getPrice() {
@@ -38,5 +38,5 @@ public class BookPurchase extends BookEntry{
 	public void setUsed(boolean used) {
 		this.used = used;
 	}
-	
+		
 }

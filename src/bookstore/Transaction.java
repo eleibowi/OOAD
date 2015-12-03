@@ -54,4 +54,8 @@ public class Transaction {
 		id=newId;
 	}
 	
+	public void remove(int i){
+		books.remove(i);
+	}
+	
 }

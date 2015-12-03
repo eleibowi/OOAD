@@ -598,17 +598,23 @@ public class Controller {
 			public void actionPerformed(ActionEvent event){
 				JTable table = (JTable)((JButton)event.getSource()).getClientProperty("table");
 				ArrayList<BookPurchase> selectedPurchases = new ArrayList<BookPurchase>();
+				int transactionId = -1;
 				for(int i:table.getSelectedRows())
 					for(Transaction t:transactions)
-						if((int)table.getValueAt(i, 0)==t.getId())
+						if((int)table.getValueAt(i, 0)==t.getId()){
+							if(transactionId==-1)
+								transactionId=t.getId();
+							else if(transactionId!=t.getId())
+								return;
 							for(BookPurchase b:t.getBooks())
 								if(b.getTitle().equals(table.getValueAt(i, 2))&&b.getPrice()==(double)table.getValueAt(i,5))
 									selectedPurchases.add(b);
+						}
 				if(selectedPurchases.size()>0){
 					JFrame returnFrame = new JFrame();
 					JPanel returnPanel = new JPanel();
 					returnPanel.setLayout(new GridLayout(1+selectedPurchases.size(),1));
-					returnFrame.setSize(300,selectedPurchases.size()*30+100);
+					returnFrame.setSize(400,selectedPurchases.size()*30+100);
 					ArrayList<JTextField> returnFields = new ArrayList<JTextField>();
 					for(BookPurchase b:selectedPurchases){
 						JPanel returnSelection = new JPanel();
@@ -623,20 +629,37 @@ public class Controller {
 					JButton confirmReturn = new JButton("Confirm");
 					confirmReturn.putClientProperty("selected",selectedPurchases);
 					confirmReturn.putClientProperty("fields", returnFields);
+					confirmReturn.putClientProperty("transactionId",transactionId);
+					confirmReturn.putClientProperty("frame",returnFrame);
 					confirmReturn.addActionListener(new ActionListener(){
 						public void actionPerformed(ActionEvent event){
 							ArrayList<BookPurchase> selectedPurchases = (ArrayList<BookPurchase>)((JButton)event.getSource()).getClientProperty("selected");
 							ArrayList<JTextField> returnFields = (ArrayList<JTextField>)((JButton)event.getSource()).getClientProperty("fields");
+							int transactionId = (int)((JButton)event.getSource()).getClientProperty("transactionId");
 							for(int i=0;i<returnFields.size();i++)
 								if(Integer.parseInt(returnFields.get(i).getText())>selectedPurchases.get(i).getQuantity())
 									return;
-							for(int i=0;i<transactions.size();i++)
-								for(int j=0;j<transactions.get(i).getBooks().size();j++);
-									//if(transactions.get(i).getQuantity()==)
+							for(int i=0;i<transactions.size();i++){
+								if(transactions.get(i).getId()==transactionId)
+									for(int j=0;j<transactions.get(i).getBooks().size();j++)
+										for(int k=0;k<selectedPurchases.size();k++)
+											if(transactions.get(i).getBooks().get(j).equals(selectedPurchases.get(k))){
+												BookPurchase newRecord = transactions.get(i).getBooks().get(j);
+												newRecord.setQuantity(newRecord.getQuantity()-Integer.parseInt(returnFields.get(k).getText()));
+												transactions.get(i).getBooks().set(j,newRecord);
+												boolean used=false;
+												if(selectedPurchases.get(k).isUsed())
+													used=true;
+												inventory.restockBook(selectedPurchases.get(k), Integer.parseInt(returnFields.get(k).getText()), used);
+												inventory.setMoneyInRegister(inventory.getMoneyInRegister()+selectedPurchases.get(k).getPrice()-newRecord.getPrice());
+											}
+							}
+							((JFrame)((JButton)event.getSource()).getClientProperty("frame")).dispose();
+							updateTransactionPanel();
 						}
 					});
+					confirmReturn.setPreferredSize(new Dimension(200,25));
 					returnPanel.add(confirmReturn);
-					
 					
 					returnFrame.add(returnPanel);
 					returnFrame.setVisible(true);

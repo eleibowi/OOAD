@@ -537,19 +537,13 @@ public class Controller {
 		String[] columnHeadings = {"Time","Book","Quality","#","Price","Payment Type"};
 		int numRows = 0;
 		for(Transaction t:transactions)
-			numRows+=t.getBooks().size()+1;
+			numRows+=t.getBooks().size();
 		int rowCount=0;
 		Object[][] tableContents = new Object[numRows][6];
 		for(int i=0;i<transactions.size();i++){
 			for(int j=0;j<transactions.get(i).getBooks().size();j++){
-				if(j==0){
-					tableContents[rowCount][0]=transactions.get(i).getTime();
-					tableContents[rowCount][5]=transactions.get(i).getPaymentType();
-				}
-				else{
-					tableContents[rowCount][0]="";
-					tableContents[rowCount][5]="";
-				}
+				tableContents[rowCount][0]=transactions.get(i).getTime();
+				tableContents[rowCount][5]=transactions.get(i).getPaymentType();
 				tableContents[rowCount][1]=transactions.get(i).getBooks().get(j).getTitle();
 				if(transactions.get(i).getBooks().get(j).isUsed())
 					tableContents[rowCount][2]="Used";
@@ -557,11 +551,6 @@ public class Controller {
 					tableContents[rowCount][2]="New";
 				tableContents[rowCount][3]=transactions.get(i).getBooks().get(j).getQuantity();
 				tableContents[rowCount][4]="$"+String.format("%.2f",transactions.get(i).getBooks().get(j).getPrice());
-				rowCount++;
-			}
-			if(rowCount!=numRows-1){
-				String[] blankLine={"","","","","",""};
-				tableContents[rowCount]=blankLine;
 				rowCount++;
 			}
 			

@@ -286,7 +286,7 @@ public class Controller {
 							confirmButton.putClientProperty("frame", (JFrame)((JButton)event.getSource()).getClientProperty("frame"));
 							confirmButton.addActionListener(new ActionListener(){
 								public void actionPerformed(ActionEvent event){
-									transactions.add(new Transaction(shoppingCart.getBooks()));
+									transactions.add(new Transaction(shoppingCart.getBooks(),"Cash"));
 									for(BookPurchase b : shoppingCart.getBooks()){
 										inventory.sellBook(b);
 									}
@@ -519,18 +519,22 @@ public class Controller {
 	
 	public void updateTransactionPanel(){
 		transactionPanel.removeAll();
-		String[] columnHeadings = {"Time","Book","Quality","#","Price"};
+		String[] columnHeadings = {"Time","Book","Quality","#","Price","Payment Type"};
 		int numRows = 0;
 		for(Transaction t:transactions)
 			numRows+=t.getBooks().size();
 		int rowCount=0;
-		Object[][] tableContents = new Object[numRows][5];
+		Object[][] tableContents = new Object[numRows][6];
 		for(int i=0;i<transactions.size();i++){
 			for(int j=0;j<transactions.get(i).getBooks().size();j++){
-				if(j==0)
+				if(j==0){
 					tableContents[rowCount][0]=transactions.get(i).getTime();
-				else
+					tableContents[rowCount][5]=transactions.get(i).getPaymentType();
+				}
+				else{
 					tableContents[rowCount][0]="";
+					tableContents[rowCount][5]="";
+				}
 				tableContents[rowCount][1]=transactions.get(i).getBooks().get(j).getTitle();
 				if(transactions.get(i).getBooks().get(j).isUsed())
 					tableContents[rowCount][2]="Used";
@@ -570,7 +574,7 @@ public class Controller {
 	public void returnBooks(Transaction transaction){
 		ShoppingCart shoppingCart = new ShoppingCart();
 		//user input: choose books to remove
-		transactions.add(new Transaction(shoppingCart.getBooks(),transaction.getTime()));
+		transactions.add(new Transaction(shoppingCart.getBooks(),transaction.getTime(),transaction.getPaymentType()));
 		transactions.remove(transaction);
 	}
 	
